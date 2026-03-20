@@ -1,6 +1,6 @@
 package arigo
 
-import errs "github.com/siku2/arigo/errors"
+import errs "github.com/isoldmysoull/arigo/errors"
 
 // Re-export the ExitStatus type so callers can still use arigo.ExitStatus
 type ExitStatus = errs.ExitStatus

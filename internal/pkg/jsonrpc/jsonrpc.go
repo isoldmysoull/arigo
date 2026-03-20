@@ -24,8 +24,8 @@ import (
 	"reflect"
 	"sync"
 
+	errs "github.com/isoldmysoull/arigo/errors"
 	"github.com/nubuki-all/rpc2"
-	errs "github.com/siku2/arigo/errors"
 )
 
 type jsonCodec struct {
