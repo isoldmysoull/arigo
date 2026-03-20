@@ -1,5 +1,12 @@
 package arigo
 
+import (
+	"encoding/json"
+	"fmt"
+	"maps"
+	"strings"
+)
+
 // Options represents the aria2 input file options
 type Options struct {
 	AllProxy                      string  `json:"all-proxy,omitempty"`
@@ -57,7 +64,7 @@ type Options struct {
 	FTPUser                       string  `json:"ftp-user,omitempty"`
 	GID                           string  `json:"gid,omitempty"`
 	HashCheckOnly                 bool    `json:"hash-check-only,omitempty,string"`
-	Header                        string  `json:"header,omitempty"`
+	Header                        Header  `json:"header,omitempty"`
 	HTTPAcceptGzip                bool    `json:"http-accept-gzip,omitempty,string"`
 	HTTPAuthChallenge             bool    `json:"http-auth-challenge,omitempty,string"`
 	HTTPNoCache                   bool    `json:"http-no-cache,omitempty,string"`
@@ -113,4 +120,51 @@ type Options struct {
 	URISelector                   string  `json:"uri-selector,omitempty"`
 	UseHead                       bool    `json:"use-head,omitempty,string"`
 	UserAgent                     string  `json:"user-agent,omitempty"`
+}
+
+func (o *Options) Clone() *Options {
+	if o == nil {
+		return nil
+	}
+	clone := *o
+	// deep copy map
+	if o.Header != nil {
+		clone.Header = make(map[string]string, len(o.Header))
+		maps.Copy(clone.Header, o.Header)
+	}
+
+	return &clone
+}
+
+type Header map[string]string
+
+func (h Header) MarshalJSON() ([]byte, error) {
+	lines := make([]string, 0, len(h))
+	for k, v := range h {
+		lines = append(lines, fmt.Sprintf("%s: %s", k, v))
+	}
+	return json.Marshal(lines)
+}
+
+func (h *Header) UnmarshalJSON(data []byte) error {
+	var raw []string
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	if *h == nil {
+		*h = make(Header)
+	}
+	for i, line := range raw {
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid header format at index %d: %q", i, line)
+		}
+		key := strings.TrimSpace(parts[0])
+		val := strings.TrimSpace(parts[1])
+		if key == "" {
+			return fmt.Errorf("empty header key at index %d", i)
+		}
+		(*h)[key] = val
+	}
+	return nil
 }
