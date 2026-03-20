@@ -120,6 +120,9 @@ type Options struct {
 	URISelector                   string  `json:"uri-selector,omitempty"`
 	UseHead                       bool    `json:"use-head,omitempty,string"`
 	UserAgent                     string  `json:"user-agent,omitempty"`
+
+	DisableIpv6      bool `json:"disable-ipv6,omitempty,string"`
+	CheckCertificate bool `json:"check-certificate,omitempty,string"`
 }
 
 func (o *Options) Clone() *Options {
